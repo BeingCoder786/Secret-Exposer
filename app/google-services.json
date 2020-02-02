@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1036600247993",
+    "firebase_url": "https://secret-exposer-bf95b.firebaseio.com",
+    "project_id": "secret-exposer-bf95b",
+    "storage_bucket": "secret-exposer-bf95b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036600247993:android:05e6c38e1953a24e203d68",
+        "android_client_info": {
+          "package_name": "com.mnnit.secretexposer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036600247993-a1ghnlba2aektu2669pf8fubuv5c359t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mnnit.secretexposer",
+            "certificate_hash": "8367114ebbeed60bf4f7cabae6f1e27886f5b97a"
+          }
+        },
+        {
+          "client_id": "1036600247993-da5akjotctsn10dpt5h2ki9c27prc611.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCap4kEVMSGJl4Ogcsg_eqZcGcTJKKjPec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036600247993-da5akjotctsn10dpt5h2ki9c27prc611.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

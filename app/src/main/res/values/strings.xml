@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Secret Exposer</string>
+    <string name="signin">Sign in</string>
+    <string name="signup">No account yet? Create One</string>
+    <string name="forgot">Forgot Password ?</string>
+    <string name="password">password</string>
+    <string name="email">Email Id</string>
+    <string name="no_account_yet_create_one">No account yet?Create One</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="gender">Gender</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="sign_up">Sign up</string>
+    <string name="repassword">Re-Password</string>
+    <string name="gender_button" type="id">gender_button</string>
+</resources>
