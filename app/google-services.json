@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1036600247993-d4qcpir66ead277r0gtc3m2tm1k8bh3j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mnnit.secretexposer",
+            "certificate_hash": "d174db9f44e2f593720db594e66ff43e934fc880"
+          }
+        },
+        {
           "client_id": "1036600247993-a1ghnlba2aektu2669pf8fubuv5c359t.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

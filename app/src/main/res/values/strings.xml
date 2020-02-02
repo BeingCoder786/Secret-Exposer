@@ -13,4 +13,5 @@
     <string name="sign_up">Sign up</string>
     <string name="repassword">Re-Password</string>
     <string name="gender_button" type="id">gender_button</string>
+    <string name="welcome_to">Welcome To</string>
 </resources>
