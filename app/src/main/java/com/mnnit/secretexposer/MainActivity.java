@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
 
-        myRef.setValue("Hello, World!");
+        myRef.setValue("Hello123, World!");
     }
     public void changeToSignupActivity(View view) {
         Intent intent=new Intent(this, SignupActivity.class);
