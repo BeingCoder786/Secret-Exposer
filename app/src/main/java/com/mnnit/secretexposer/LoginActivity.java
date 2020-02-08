@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,22 +22,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-
 public class LoginActivity extends AppCompatActivity {
-
-
-
     EditText txtEmail,txtPwd;
     Button btnlogin;
     TextView forgot;
     FirebaseAuth mAuth;
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-
-
         forgot=(TextView)findViewById(R.id.forgot);
         txtEmail=(EditText)findViewById(R.id.uid);
         txtPwd=(EditText)findViewById(R.id.password);
@@ -60,28 +55,23 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 //now login begin
+                progressBar=findViewById(R.id.progress_circular);
+                progressBar.setVisibility(View.VISIBLE);
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {   //you have to privide class name
                             @Override
-
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-
-                                    Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
-
-
-
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
-
-                                }
-
-                                // ...
-                            }
-                        });
+                            if (task.isSuccessful()) {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
+                               startActivity(new Intent(getApplicationContext(),PostActivity.class));
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
-
         ///recover password through email
         forgot.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,10 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
-
     private void showRecoverPasswordialog() {
         //alert
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
@@ -120,20 +107,8 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        //button Cancel
-    /*    builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //dismiss
-                dialog.dismiss();
-
-            }
-
-
-        });*/
         builder.create().show();
     }
-
     private void beginrecoveryemail(String email) {
         mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -152,18 +127,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
-
-//this following function for signup page
-    public void changeToSignupActivity(View view) {
-        Intent intent=new Intent(this, SignupActivity.class);
-        startActivity(intent);
+    //this following function for signup page
+        public void changeToSignupActivity(View view) {
+            Intent intent=new Intent(this, SignupActivity.class);
+            startActivity(intent);
+        }
     }
 
-
-
-
-    // }
-}

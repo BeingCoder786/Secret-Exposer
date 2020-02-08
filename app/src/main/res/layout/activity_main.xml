@@ -77,6 +77,8 @@
         android:background="@drawable/rounded_button"
         android:text="@string/signin"
         android:textSize="24sp"
+        android:textColor="#ffffff"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toTopOf="@+id/signup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
