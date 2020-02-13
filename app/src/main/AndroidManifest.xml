@@ -13,7 +13,9 @@
             android:name=".PostActivity"
             android:label="@string/title_activity_post"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <!-- <activity android:name=".LoginActivity"></activity> -->
+        <activity
+            android:name=".WritePostActivity"
+            android:label="Write Post" /> <!-- <activity android:name=".LoginActivity"></activity> -->
         <activity
             android:name=".SignupActivity"
             android:label="Sign up" />

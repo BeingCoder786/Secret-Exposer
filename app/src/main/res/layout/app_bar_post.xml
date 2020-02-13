@@ -22,4 +22,4 @@
 
     <include layout="@layout/content_post" />
 
-   </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

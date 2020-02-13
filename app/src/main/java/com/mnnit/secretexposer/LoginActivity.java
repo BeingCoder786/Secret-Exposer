@@ -40,11 +40,8 @@ public class LoginActivity extends AppCompatActivity {
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 final String email=txtEmail.getText().toString();
                 final String password=txtPwd.getText().toString();
-
-
                 if(TextUtils.isEmpty(email))
                 {
                     Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
@@ -53,7 +50,6 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
                 }
-
                 //now login begin
                 progressBar=findViewById(R.id.progress_circular);
                 progressBar.setVisibility(View.VISIBLE);
@@ -63,9 +59,11 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 progressBar.setVisibility(View.GONE);
+
                                 Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
                                startActivity(new Intent(getApplicationContext(),PostActivity.class));
                         } else {
+                            progressBar.setVisibility(View.GONE);
                             Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -96,7 +94,6 @@ public class LoginActivity extends AppCompatActivity {
         emailit.setMinEms(20);//fit to screen for entering email
         linearLayout.addView(emailit);
         linearLayout.setPadding(10,10,10,10);
-
         builder.setView(linearLayout);
         //button recover
         builder.setPositiveButton("Recover", new DialogInterface.OnClickListener() {
@@ -104,12 +101,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String email=emailit.getText().toString().trim();
                 beginrecoveryemail(email);
-
             }
         });
         builder.create().show();
     }
     private void beginrecoveryemail(String email) {
+
         mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -122,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
+
             public void onFailure(@NonNull Exception e) {
 
             }

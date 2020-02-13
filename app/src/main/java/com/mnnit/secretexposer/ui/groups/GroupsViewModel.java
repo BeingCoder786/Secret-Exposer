@@ -1,14 +1,14 @@
-package com.mnnit.secretexposer.ui.tools;
+package com.mnnit.secretexposer.ui.groups;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ToolsViewModel extends ViewModel {
+public class GroupsViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public ToolsViewModel() {
+    public GroupsViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is tools fragment");
     }

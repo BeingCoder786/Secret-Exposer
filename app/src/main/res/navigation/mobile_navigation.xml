@@ -12,22 +12,22 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.mnnit.secretexposer.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_profile"
+        android:name="com.mnnit.secretexposer.ui.profile.ProfileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.mnnit.secretexposer.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_notification"
+        android:name="com.mnnit.secretexposer.ui.notification.NotificationFragment"
+        android:label="@string/menu_notification"
+        tools:layout="@layout/fragment_notification" />
 
     <fragment
-        android:id="@+id/nav_tools"
-        android:name="com.mnnit.secretexposer.ui.tools.ToolsFragment"
-        android:label="@string/menu_tools"
-        tools:layout="@layout/fragment_tools" />
+        android:id="@+id/nav_groups"
+        android:name="com.mnnit.secretexposer.ui.groups.GroupsFragment"
+        android:label="@string/menu_groups"
+        tools:layout="@layout/fragment_groups" />
 
     <fragment
         android:id="@+id/nav_share"
