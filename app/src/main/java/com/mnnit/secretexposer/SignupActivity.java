@@ -101,14 +101,6 @@ public class SignupActivity extends AppCompatActivity {
                     Toast.makeText(SignupActivity.this, "Gender", Toast.LENGTH_SHORT).show();
                 }
 
-/*                final Handler handel=new Handler()
-                handel.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ProgressBar progressBar= findViewById(R.id.progress_circular);
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                });*/
                 final ProgressBar progressBar=findViewById(R.id.progress_circular);
                 progressBar.setVisibility(View.VISIBLE);
                 onPause();
@@ -118,7 +110,7 @@ public class SignupActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
 
-                                    com.mnnit.secretexposer.User information=new com.mnnit.secretexposer.User(fullname,email,password,repassword,gender);
+                                    com.mnnit.secretexposer.User information=new com.mnnit.secretexposer.User(fullname,email,password,gender);
 
                                     FirebaseDatabase.getInstance().getReference("Users")
                                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
