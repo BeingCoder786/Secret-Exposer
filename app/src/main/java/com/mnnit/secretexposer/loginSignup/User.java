@@ -1,15 +1,19 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.loginSignup;
 public class User {
 
-    private String fullname,email,gender,password;
+    private String fullname,email,gender,password, key, profileImageUrl;
     public User(){
 
     }
-    public User(String fullname, String email, String password, String gender) {
+
+
+    public User(String fullname, String email, String password, String gender, String key, String profileImageUrl) {
         this.fullname = fullname;
         this.email = email;
         this.password = password;
         this.gender=gender;
+        this.key = key;
+        this.profileImageUrl = profileImageUrl;
     }
     public void setFullname(String fullname) {
         this.fullname = fullname;
@@ -41,4 +45,13 @@ public class User {
         this.password = password;
     }
 
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getProfileImageUrl(){return profileImageUrl;}
 }

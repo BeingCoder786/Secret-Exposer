@@ -1,4 +1,4 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.post;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +28,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mnnit.secretexposer.home.HomeActivity;
+import com.mnnit.secretexposer.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +62,7 @@ public class WritePostActivity extends AppCompatActivity {
         videoView = findViewById(R.id.video_post);
         textView = findViewById(R.id.file_post);
         anonymousButton = findViewById(R.id.anonymous);
+        groupName = getIntent().getStringExtra("GroupName");
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void sendPost(View view){

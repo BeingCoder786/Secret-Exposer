@@ -1,6 +1,4 @@
-package com.mnnit.secretexposer;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.mnnit.secretexposer.home;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,8 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.loginSignup.SignupActivity;
 
 public class MainActivity extends Activity {
     @Override
@@ -23,5 +21,4 @@ public class MainActivity extends Activity {
         Intent intent=new Intent(this, SignupActivity.class);
         startActivity(intent);
     }
-
 }

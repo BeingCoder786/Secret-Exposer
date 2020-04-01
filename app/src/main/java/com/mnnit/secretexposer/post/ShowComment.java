@@ -1,4 +1,4 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.post;
 
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -6,6 +6,8 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.mnnit.secretexposer.R;
 
 public class ShowComment extends AppCompatActivity {
     private ImageView profileImage;

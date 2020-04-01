@@ -1,9 +1,11 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.home;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +26,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.loginSignup.LoginActivity;
+import com.mnnit.secretexposer.loginSignup.User;
+import com.mnnit.secretexposer.profile.UpdateProfile;
+import com.squareup.picasso.Picasso;
 
 public class HomeActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private TextView email;
     private TextView user_name;
+    private ImageView profileImage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +74,7 @@ public class HomeActivity extends AppCompatActivity {
     }
     public  void loadUserInformation(View headerView) {
         email=(TextView) headerView.findViewById(R.id.email);
+        profileImage = (ImageView) headerView.findViewById ( R.id.profile_image );
         if(email==null) {
             Toast.makeText(getBaseContext(),"Null",Toast.LENGTH_SHORT).show();
             return;
@@ -73,6 +82,7 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         email.setText(user.getEmail());
         user_name=(TextView)headerView.findViewById(R.id.user_name);
+
         DatabaseReference realRef= FirebaseDatabase.getInstance().getReference("Users/"+user.getUid());
         realRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -80,6 +90,9 @@ public class HomeActivity extends AppCompatActivity {
                 User currUser=dataSnapshot.getValue(User.class);
                 currUser.getFullname();
                 user_name.setText(currUser.getFullname());
+                Picasso.with ( getBaseContext () )
+                        .load ( currUser.getProfileImageUrl () )
+                        .into(profileImage);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -92,7 +105,12 @@ public class HomeActivity extends AppCompatActivity {
           FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
           firebaseAuth.signOut();
           finish();
-          Intent intent=new Intent(getBaseContext(),LoginActivity.class);
+          Intent intent=new Intent(getBaseContext(), LoginActivity.class);
           startActivity(intent);
+    }
+
+    public void updateProfile(View view) {
+        Intent intent = new Intent(getBaseContext(), UpdateProfile.class);
+        startActivity(intent);
     }
 }

@@ -22,29 +22,31 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mnnit.secretexposer.Like;
-import com.mnnit.secretexposer.Post;
+import com.mnnit.secretexposer.post.Like;
+import com.mnnit.secretexposer.post.Post;
 import com.mnnit.secretexposer.R;
-import com.mnnit.secretexposer.ShowComment;
+import com.mnnit.secretexposer.post.ShowComment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerViewAdapter.ContentHolder> {
+public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder> {
     @NonNull
     private  ArrayList<Post> data;
     Context context;
-    public HomeRecyclerViewAdapter(Context context , ArrayList<Post> data) {
+    public HomeAdapter(Context context , ArrayList<Post> data) {
         this.data = data;
         this.context = context;
     }
-    public void setData(ArrayList<Post> newPost){
+    public void addAll(ArrayList<Post> newPost){
         int count=data.size();
         data.addAll(newPost);
-        notifyItemChanged(count);
-        //notifyItemRangeChanged(count,newPost.size());
-
+        notifyItemRangeInserted(count,newPost.size());
+    }
+    public void clearAll(){
+        data.clear();
+        notifyDataSetChanged();
     }
     @Override
     public ContentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

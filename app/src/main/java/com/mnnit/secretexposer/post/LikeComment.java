@@ -1,10 +1,10 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.post;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LikeComment {
-    private HashMap<String,Like> likes;
+    private HashMap<String, Like> likes;
     private ArrayList<Comment> comments;
     public LikeComment(){
         likes=new HashMap<String,Like>();

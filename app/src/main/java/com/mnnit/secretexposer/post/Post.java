@@ -1,4 +1,4 @@
-package com.mnnit.secretexposer;
+package com.mnnit.secretexposer.post;
 
 public class Post {
     private String id;

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF"
+    tools:context=".group.ShowGroupContent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/user_detail"
+        android:divider="?android:dividerHorizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/group_image_container"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            app:cardCornerRadius="50dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/user_detail"
+            android:layout_gravity="fill"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/group_image"
+                android:layout_width="108dp"
+                android:layout_height="90dp"
+                android:layout_marginLeft="-9dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_account_profile_100dp" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/group_name"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:text="Group Name"
+            android:textSize="24dp"
+            app:layout_constraintStart_toEndOf="@+id/group_image_container"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginTop="20dp" />
+
+        <TextView
+            android:id="@+id/group_detail"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:text="Group Name"
+            android:textSize="16dp"
+            app:layout_constraintStart_toEndOf="@+id/group_image_container"
+            app:layout_constraintTop_toBottomOf="@id/group_name" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_container"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        app:layout_constraintTop_toBottomOf="@id/container">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"></androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

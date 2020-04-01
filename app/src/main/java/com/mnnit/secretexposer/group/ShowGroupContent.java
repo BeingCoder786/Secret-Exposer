@@ -1,68 +1,62 @@
-package com.mnnit.secretexposer.ui.home;
+package com.mnnit.secretexposer.group;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.mnnit.secretexposer.post.Post;
 import com.mnnit.secretexposer.R;
 import com.mnnit.secretexposer.loginSignup.User;
+import com.mnnit.secretexposer.post.Post;
 import com.mnnit.secretexposer.post.WritePostActivity;
+import com.mnnit.secretexposer.ui.home.HomeAdapter;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment {
-    private ArrayList<Post> posts;
-    private HomeViewModel homeViewModel;
+public class ShowGroupContent extends AppCompatActivity {
+    private Group group;
+    private ImageView groupIcon;
+    private TextView groupNameView;
+    private TextView groupDetailView;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView textView;
-    final int MAX_POST_COUNT=10;
+    private int totalPost;
+    private int lastVisiblePost;
+    private String lastPost;
+    private String lastPostId;
+    private String groupName;
     private HomeAdapter postAdapter;
-    private boolean isLoading=false;
-    private boolean isMaxPost=false;
-    private String lastPost="";
-    private String lastPostId="";
-    private String groupName="publicGroup";
-    private int totalPost=0,lastVisiblePost=0;
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
-        textView = (TextView)root.findViewById(R.id.write_post);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(getContext(), WritePostActivity.class);
-                intent.putExtra("GroupName","publicGroup");
-                startActivity(intent);
-            }
-        });
-        getLastKeyFromFirebase();
-        LinearLayout layout = (LinearLayout) root.findViewById(R.id.container);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        swipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.swipe_refresh_container);
+    private LinearLayoutManager layoutManager;
+    private boolean isLoading;
+    private int MAX_POST_COUNT=20;
+    private boolean isMaxPost;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_show_group_content);
+        groupName = getIntent().getStringExtra("GroupName");
+        getGroup();
+        groupIcon = findViewById(R.id.group_image);
+        groupNameView = findViewById(R.id.group_name);
+        groupDetailView = findViewById(R.id.group_detail);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_container);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -79,11 +73,8 @@ public class HomeFragment extends Fragment {
                     swipeRefreshLayout.setRefreshing(false);
             }
         });
-        recyclerView=(RecyclerView)root.findViewById(R.id.home_recycler);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),DividerItemDecoration.HORIZONTAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
+        recyclerView = findViewById(R.id.recycler_view);
+        layoutManager = new LinearLayoutManager(this);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -96,16 +87,52 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        recyclerView.setHasFixedSize(true);
-        postAdapter = new HomeAdapter(getContext(),new ArrayList<Post>());
+        recyclerView.setLayoutManager(layoutManager);
+        postAdapter = new HomeAdapter(this,new ArrayList<Post>());
+        getLastKeyFromFirebase();
         getPost();
         recyclerView.setAdapter(postAdapter);
-        return root;
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.write_post,menu);
+        return true;
     }
 
+    public void getGroup(){
+        Query query = FirebaseDatabase.getInstance().getReference("Groups")
+                .child(groupName);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                group = dataSnapshot.getValue(Group.class);
+                Picasso.with(getBaseContext())
+                        .load(group.getGroupImageUri())
+                        .into(groupIcon);
+                groupNameView.setText(group.getGroupName());
+                Query queryOwner = FirebaseDatabase.getInstance().getReference("Users")
+                        .child(group.getGroupOwner());
+                queryOwner.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        groupDetailView.setText(dataSnapshot.getValue(User.class).getFullname()+" "+group.getTime());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void getLastKeyFromFirebase() {
         Query getLastKey = FirebaseDatabase.getInstance().getReference("Posts/")
-                .child("publicGroup")
+                .child(groupName)
                 .orderByKey()
                 .limitToLast(1);
         getLastKey.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -114,7 +141,6 @@ public class HomeFragment extends Fragment {
                 for(DataSnapshot lastKey : dataSnapshot.getChildren())
                     lastPostId = lastKey.getKey();
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -151,6 +177,7 @@ public class HomeFragment extends Fragment {
                                     if(dataSnapshot!=null) {
                                         User user = dataSnapshot.getValue(User.class);
                                         post.setOwner(user.getFullname());
+
                                     }
                                 }
                                 @Override
@@ -161,7 +188,7 @@ public class HomeFragment extends Fragment {
                             posts.add(post);
                         }
                         if(posts.size()>0)
-                        lastPost = posts.get(posts.size()-1).getId();
+                            lastPost = posts.get(posts.size()-1).getId();
                         if(!lastPost.equals(lastPostId))
                             posts.remove(posts.size()-1);
                         else
@@ -180,40 +207,9 @@ public class HomeFragment extends Fragment {
             });
         }
     }
-    public void loadPost(){
-        swipeRefreshLayout.setRefreshing(true);
-        String groupName="publicGroup";
-        posts=new ArrayList<Post>();
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("Posts/"+groupName);
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot){
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Post post=snapshot.getValue(Post.class);
-                    DatabaseReference realRef= FirebaseDatabase.getInstance().getReference("Users/"+post.getOwner());
-                    realRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            User currUser=dataSnapshot.getValue(User.class);
-                            post.setOwner(currUser.getFullname());
-                            posts.add(post);
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                }
-                postAdapter.addAll(posts);
-                //postAdapter = new HomeAdapter(getContext(),posts);
-                //recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                //recyclerView.setAdapter(postAdapter);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
+    public void writePost(MenuItem item) {
+        Intent intent = new Intent(getBaseContext(), WritePostActivity.class);
+        intent.putExtra("GroupName",groupName);
+        startActivity(intent);
     }
 }

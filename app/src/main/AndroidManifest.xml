@@ -16,19 +16,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CreateGroup"></activity>
-        <activity android:name=".ShowComment" />
+        <activity android:name=".profile.UpdateProfile"></activity>
+        <activity android:name=".group.ShowGroupContent" />
+        <activity android:name=".group.CreateGroup" />
+        <activity android:name=".post.ShowComment" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".home.HomeActivity"
             android:label="@string/title_activity_post"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".WritePostActivity"
+            android:name=".post.WritePostActivity"
             android:label="Write Post" /> <!-- <activity android:name=".LoginActivity"></activity> -->
         <activity
-            android:name=".SignupActivity"
+            android:name=".loginSignup.SignupActivity"
             android:label="Sign up" />
-        <activity android:name=".LoginActivity"> <!-- this is actual main activity but i change it to login activity now main activity has noot seen -->
+        <activity android:name=".loginSignup.LoginActivity"> <!-- this is actual main activity but i change it to login activity now main activity has noot seen -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
