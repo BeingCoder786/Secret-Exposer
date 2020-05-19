@@ -27,7 +27,6 @@
             android:layout_height="100dp"
             android:layout_gravity="fill"
             android:contentDescription="@string/nav_header_desc"
-            android:onClick="selectImage"
             android:scaleType="centerCrop"
             android:layout_marginLeft="-11dp"
             app:srcCompat="@drawable/ic_account_profile_100dp" />

@@ -8,12 +8,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,21 +39,27 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mnnit.secretexposer.home.HomeActivity;
 import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.home.HomeActivity;
 import com.mnnit.secretexposer.loginSignup.User;
+import com.mnnit.secretexposer.ui.notification.Notification;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 public class CreateGroup extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText groupNameContainer;
+    private EditText searchEditText;
+    private TextView searchTextView;
     private ImageView profileImageContainer;
-    private ArrayList<User> selectedUser;
     final int MAX_USER_COUNT=20;
     private String lastUserId = "";
     private String lastUser = "";
@@ -60,18 +69,23 @@ public class CreateGroup extends AppCompatActivity {
     private int totalUser =0, lastVisibleUser = 0;
     private boolean isMaxUser;
     private String path;
+    private String uid;
+    private User currUser;
     private Uri fileUri;
     private final int CAMERA_PERMISSION_CODE = 22;
     private final int CAMERA_REQUEST = 1;
     private final int PICK_IMAGE_REQUEST_CODE = 2;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    private ArrayList<User> allUsers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         groupNameContainer = (EditText) findViewById(R.id.group_name);
         profileImageContainer = (ImageView) findViewById(R.id.group_image);
+        searchTextView = findViewById(R.id.search_text_view);
+        searchEditText = findViewById(R.id.search_edit_text);
         recyclerView = findViewById(R.id.group_recycleView);
         DividerItemDecoration dividerItemDecoration=new DividerItemDecoration(this,DividerItemDecoration.HORIZONTAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
@@ -107,7 +121,8 @@ public class CreateGroup extends AppCompatActivity {
             }
         });
         recyclerView.setLayoutManager(layoutManager);
-        userAdapter = new CreateGroupAdapter(this,new ArrayList<User>());
+        allUsers = new ArrayList<>();
+        userAdapter = new CreateGroupAdapter(this,new ArrayList<>());
         getLastKeyFromFirebase();
         getUser();
         recyclerView.setAdapter(userAdapter);
@@ -155,18 +170,22 @@ public class CreateGroup extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if(dataSnapshot.hasChildren()){
-                        ArrayList<User> users = new ArrayList<User>();
+                        ArrayList<User> newUsers = new ArrayList<User>();
                         for( DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                             User user = userSnapshot.getValue(User.class);
-                            users.add(user);
+                            newUsers.add(user);
+                            if(uid.equals(user.getKey()))
+                                currUser=user;
                         }
-                        if(users.size()>0)
-                        lastUser = users.get(users.size()-1).getKey();
+                        if(newUsers.size()>0)
+                        lastUser = newUsers.get(newUsers.size()-1).getKey();
                         if(!lastUser.equals(lastUserId))
-                            users.remove(users.size()-1);
+                            newUsers.remove(newUsers.size()-1);
                         else
                             lastUser = "end";
-                        userAdapter.addAll(users);
+                        userAdapter.addAll(newUsers);
+                        allUsers.addAll(newUsers);
+                        //users = userAdapter.getUserList();
                         isLoading = false;
                     } else {
                         isLoading = false;
@@ -186,7 +205,6 @@ public class CreateGroup extends AppCompatActivity {
             Toast.makeText(getBaseContext(),"Name is Required", Toast.LENGTH_SHORT).show();
             return;
         }
-        String owner = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String currentTime = new SimpleDateFormat("HH:mm:ss DD-MM-YYYY", Locale.getDefault()).format(new Date());
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("GroupIcons");
         storageReference.child(groupName).putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -199,21 +217,44 @@ public class CreateGroup extends AppCompatActivity {
                     }
                 });
                 HashMap<String,String> members = userAdapter.getSelectedUser();
-                Group group = new Group(groupName,owner,fileUri.toString(),currentTime,members);
-                if(members.size()>0)
-                    Toast.makeText(getBaseContext(),"Members"+members.size(),Toast.LENGTH_SHORT).show();
+                if(!members.containsKey(uid))
+                    members.put(uid,"true");
+                Group group = new Group(groupName,uid,fileUri.toString(),currentTime,members);
                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference()
                         .child("Groups");
                 if(members.size()>0)
                 databaseReference.child(groupName).setValue(group).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        startActivity(new Intent(getBaseContext(), HomeActivity.class));
+                        DatabaseReference dbReference=FirebaseDatabase.getInstance().getReference("Users");
+                        dbReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()+"/"+"OwnerOfGroup")
+                                .child(groupName)
+                                .setValue("true").addOnSuccessListener(new OnSuccessListener < Void >( ){
+                            @Override
+                            public void onSuccess( Void aVoid ) {
+                                String text=currUser.getFullname()+" added to New Group "+groupName;
+                                String time= Calendar.getInstance().getTime().toString();
+                                String id=System.currentTimeMillis()+uid;
+                                Notification notification=new Notification(text,time,currUser.getProfileImageUrl());
+                                for(Map.Entry <String,String> user : members.entrySet()){
+                                    dbReference.child(user.getKey())
+                                            .child("JoinedGroup")
+                                            .child(groupName)
+                                            .setValue("true");
+                                    dbReference.child(user.getKey())
+                                            .child("Notification")
+                                            .child(id).setValue(notification);
+                                }
+                                startActivity(new Intent(getBaseContext(), HomeActivity.class));
+                            }
+                        });
+
                     }
                 });
             }
         });
     }
+
     public void selectImage(View view) {
         final CharSequence[] options={"Take Photo","Select From Gallery","Cancel"};
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
@@ -273,5 +314,57 @@ public class CreateGroup extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void searchUser(View view){
+        searchTextView.setVisibility(View.GONE);
+        searchEditText.setVisibility(View.VISIBLE);
+        searchEditText.addTextChangedListener(new TextWatcher(){
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count){
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s){
+                String searchUserName = searchEditText.getText().toString();
+                if(searchUserName.length()==0&&userAdapter.getUserList().size()!=allUsers.size()){
+                    userAdapter.clearAll();
+                    userAdapter.addAll(allUsers);
+                }
+                ArrayList<User> updatedList = new ArrayList<>();
+                for(User user : allUsers){
+                    String  userName= user.getFullname();
+                    if(matchUserName(searchUserName,userName))
+                        updatedList.add(user);
+                }
+                userAdapter.clearAll();
+                userAdapter.addAll(updatedList);
+            }
+        });
+    }
+    private boolean matchUserName(String searchUserName,String userName){
+        userName = userName.toLowerCase();
+        StringTokenizer stringTokenizer=new StringTokenizer(userName, " ");
+        searchUserName=searchUserName.toLowerCase();
+        while(stringTokenizer.hasMoreTokens()){
+            String token=stringTokenizer.nextToken();
+                boolean flag=true;
+                if(searchUserName.length()>token.length())
+                    continue;
+                for(int j=0;j<searchUserName.length();j++){
+                    if(token.charAt(j)!=searchUserName.charAt(j)){
+                        flag=false;
+                        break;
+                    }
+                }
+                if(flag)return flag;
+        }
+        return false;
     }
 }

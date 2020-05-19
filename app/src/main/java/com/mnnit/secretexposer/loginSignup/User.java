@@ -1,19 +1,29 @@
 package com.mnnit.secretexposer.loginSignup;
-public class User {
 
+import java.io.Serializable;
+
+public class User implements Serializable{
+
+    private String aboutUser;
     private String fullname,email,gender,password, key, profileImageUrl;
-    public User(){
-
-    }
-
-
-    public User(String fullname, String email, String password, String gender, String key, String profileImageUrl) {
+    public User(){}
+    public User(String fullname, String email, String password, String gender, String key, String profileImageUrl){
         this.fullname = fullname;
         this.email = email;
         this.password = password;
         this.gender=gender;
         this.key = key;
         this.profileImageUrl = profileImageUrl;
+
+    }
+    public User(String fullname, String email, String password, String gender, String key, String profileImageUrl,String aboutUser) {
+        this.fullname = fullname;
+        this.email = email;
+        this.password = password;
+        this.gender=gender;
+        this.key = key;
+        this.profileImageUrl = profileImageUrl;
+        this.aboutUser = aboutUser;
     }
     public void setFullname(String fullname) {
         this.fullname = fullname;
@@ -54,4 +64,14 @@ public class User {
     }
 
     public String getProfileImageUrl(){return profileImageUrl;}
+
+    public String getAboutUser(){return aboutUser;}
+
+    public void setAboutUser ( String aboutUser ) {
+        this.aboutUser = aboutUser;
+    }
+
+    public void setProfileImageUrl ( String profileImageUrl ) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }

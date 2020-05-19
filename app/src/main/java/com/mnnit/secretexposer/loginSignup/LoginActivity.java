@@ -31,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgot;
     FirebaseAuth mAuth;
     ProgressBar progressBar;
+    private String uid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +63,11 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 progressBar.setVisibility(View.GONE);
-
+                                uid= mAuth.getCurrentUser().getUid();
+                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                intent.putExtra("uid",uid);
                                 Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
-                               startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                startActivity(intent);
                         } else {
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();

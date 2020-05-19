@@ -14,12 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.home.HomeActivity;
 import com.mnnit.secretexposer.loginSignup.User;
 import com.mnnit.secretexposer.post.Post;
 import com.mnnit.secretexposer.post.WritePostActivity;
@@ -27,9 +31,13 @@ import com.mnnit.secretexposer.ui.home.HomeAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShowGroupContent extends AppCompatActivity {
     private Group group;
+    private User groupOwner;
+    private String currUid;
     private ImageView groupIcon;
     private TextView groupNameView;
     private TextView groupDetailView;
@@ -51,8 +59,9 @@ public class ShowGroupContent extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_group_content);
-        groupName = getIntent().getStringExtra("GroupName");
-        getGroup();
+        group = (Group) getIntent().getExtras().get("group");
+        groupName = group.getGroupName();
+        groupOwner = (User) getIntent().getExtras().get("groupOwner");
         groupIcon = findViewById(R.id.group_image);
         groupNameView = findViewById(R.id.group_name);
         groupDetailView = findViewById(R.id.group_detail);
@@ -88,47 +97,19 @@ public class ShowGroupContent extends AppCompatActivity {
             }
         });
         recyclerView.setLayoutManager(layoutManager);
+        setGroup();
         postAdapter = new HomeAdapter(this,new ArrayList<Post>());
         getLastKeyFromFirebase();
         getPost();
         recyclerView.setAdapter(postAdapter);
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.write_post,menu);
-        return true;
-    }
 
-    public void getGroup(){
-        Query query = FirebaseDatabase.getInstance().getReference("Groups")
-                .child(groupName);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                group = dataSnapshot.getValue(Group.class);
-                Picasso.with(getBaseContext())
-                        .load(group.getGroupImageUri())
-                        .into(groupIcon);
-                groupNameView.setText(group.getGroupName());
-                Query queryOwner = FirebaseDatabase.getInstance().getReference("Users")
-                        .child(group.getGroupOwner());
-                queryOwner.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        groupDetailView.setText(dataSnapshot.getValue(User.class).getFullname()+" "+group.getTime());
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+    public void setGroup(){
+        Picasso.with(ShowGroupContent.this)
+                .load(group.getGroupImageUri())
+                .into(groupIcon);
+        groupNameView.setText(group.getGroupName());
+        groupDetailView.setText(groupOwner.getFullname()+"  "+group.getTime());
     }
     private void getLastKeyFromFirebase() {
         Query getLastKey = FirebaseDatabase.getInstance().getReference("Posts/")
@@ -210,6 +191,50 @@ public class ShowGroupContent extends AppCompatActivity {
     public void writePost(MenuItem item) {
         Intent intent = new Intent(getBaseContext(), WritePostActivity.class);
         intent.putExtra("GroupName",groupName);
+        intent.putExtra("group",group);
         startActivity(intent);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        currUid = FirebaseAuth.getInstance().getUid();
+        if(currUid.equals(group.getGroupOwner()))
+            getMenuInflater().inflate(R.menu.group_owner_menu,menu);
+        else
+        getMenuInflater().inflate(R.menu.group_menu,menu);
+        return true;
+    }
+
+    public void updateGroup(MenuItem item){
+        Intent intent=new Intent(ShowGroupContent.this,UpdateGroup.class);
+        intent.putExtra("group",group);
+        intent.putExtra("groupOwner",groupOwner);
+        startActivity(intent);
+    }
+
+    public void showMember(MenuItem item){
+        Intent intent=new Intent(ShowGroupContent.this,ShowGroupMember.class);
+        intent.putExtra("groupOwner",groupOwner);
+        intent.putExtra("group",group);
+        startActivity(intent);
+        startActivity(intent);
+    }
+    public void deleteGroup(MenuItem item){
+        FirebaseDatabase.getInstance().getReference("Groups")
+                .child(groupName).removeValue();;
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        HashMap<String,String> members=group.getMembers();
+        for(Map.Entry<String,String> entry:members.entrySet()){
+            databaseReference.child(entry.getKey()+"/JoinedGroup").child(groupName).removeValue();
+        }
+        databaseReference.child(group.getGroupOwner()+"/OwnerOfGroup").child(groupName).removeValue();
+        FirebaseDatabase.getInstance().getReference("Posts")
+                .child(groupName)
+                .removeValue();
+        FirebaseStorage.getInstance().getReference("posts")
+                .child(groupName).delete();
+        FirebaseStorage.getInstance().getReference("GroupIcons")
+                .child(groupName)
+                .delete();
+        startActivity(new Intent(ShowGroupContent.this, HomeActivity.class));
     }
 }

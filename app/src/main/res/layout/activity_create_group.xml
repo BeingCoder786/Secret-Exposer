@@ -34,32 +34,43 @@
         <EditText
             android:id="@+id/group_name"
             android:layout_marginTop="30dp"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
             android:layout_marginBottom="20dp"
             android:layout_marginStart="20dp"
             app:layout_constraintStart_toEndOf="@+id/group_image"/>
     </LinearLayout>
     <TextView
-        android:id="@+id/search_user"
+        android:id="@+id/search_text_view"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:hint=" Search User to add in Group ..."
+        android:onClick="searchUser"
         android:background="@drawable/rounded_text_box"
         app:layout_constraintTop_toBottomOf="@id/container" />
+    <EditText
+        android:id="@+id/search_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint=" Search User to add in Group ..."
+        android:visibility="gone"
+        android:background="@drawable/rounded_text_box"
+        app:layout_constraintTop_toBottomOf="@id/search_text_view" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_container"
         android:layout_width="match_parent"
         android:layout_height="431dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_user"
+        app:layout_constraintTop_toBottomOf="@id/search_edit_text"
         app:layout_constraintVertical_bias="0.333"
         tools:layout_editor_absoluteX="3dp">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/group_recycleView"
             android:layout_width="match_parent"

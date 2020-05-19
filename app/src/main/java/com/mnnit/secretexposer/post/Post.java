@@ -1,6 +1,8 @@
 package com.mnnit.secretexposer.post;
 
-public class Post {
+import java.io.Serializable;
+
+public class Post implements Serializable{
     private String id;
     private String postContent;
     private String owner;

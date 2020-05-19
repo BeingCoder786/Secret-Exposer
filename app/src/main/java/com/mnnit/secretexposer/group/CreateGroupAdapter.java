@@ -36,6 +36,9 @@ public class CreateGroupAdapter extends RecyclerView.Adapter<CreateGroupAdapter.
         data.clear();
         notifyDataSetChanged();
     }
+    public void setSelectedUser(HashMap<String,String> users){
+        selectedUser.putAll(users);
+    }
     public HashMap<String, String> getSelectedUser(){
         return selectedUser;
     }
@@ -52,6 +55,8 @@ public class CreateGroupAdapter extends RecyclerView.Adapter<CreateGroupAdapter.
         User user = data.get(position);
         holder.userName.setText(user.getFullname());
         holder.userDetail.setText(user.getEmail());
+        if(selectedUser.containsKey(user.getKey()))
+            holder.selected.setVisibility(View.VISIBLE);
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,6 +77,10 @@ public class CreateGroupAdapter extends RecyclerView.Adapter<CreateGroupAdapter.
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public ArrayList< User> getUserList(){
+        return data;
     }
 
 

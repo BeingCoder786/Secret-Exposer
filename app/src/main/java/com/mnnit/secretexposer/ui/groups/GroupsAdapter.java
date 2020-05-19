@@ -29,6 +29,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupConte
     private Context context;
     @NonNull
     private ArrayList<Group> groups;
+    private User groupOwner;
+
     public GroupsAdapter(Context context, ArrayList<Group> groups) {
         this.groups = groups;
         this.context = context;
@@ -62,9 +64,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupConte
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if(user!=null)
-                holder.groupDetail.setText(user.getFullname()+" "+group.getTime());
+                groupOwner = dataSnapshot.getValue(User.class);
+                if(groupOwner!=null)
+                holder.groupDetail.setText(groupOwner.getFullname()+" "+group.getTime());
 
             }
 
@@ -77,7 +79,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupConte
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ShowGroupContent.class);
-                intent.putExtra("GroupName",group.getGroupName());
+                intent.putExtra("group",group);
+                intent.putExtra("groupOwner",groupOwner);
                 context.startActivity(intent);
             }
         });

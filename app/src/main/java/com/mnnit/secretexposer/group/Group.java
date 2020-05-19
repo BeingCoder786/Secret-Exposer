@@ -1,8 +1,9 @@
 package com.mnnit.secretexposer.group;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Group {
+public class Group implements Serializable{
     private String groupName;
     private String groupOwner;
     private String groupImageUri;
@@ -15,6 +16,14 @@ public class Group {
         this.groupImageUri = groupImageUri;
         this.time = time;
         this.members = members;
+    }
+
+    public void setMembers( HashMap < String, String > members ){
+        this.members = members;
+    }
+
+    public void setGroupImageUri( String groupImageUri ){
+        this.groupImageUri = groupImageUri;
     }
 
     public String getGroupName() {

@@ -20,7 +20,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +37,9 @@ public class HomeActivity extends AppCompatActivity {
     private TextView email;
     private TextView user_name;
     private ImageView profileImage;
+    private User user;
+    private String uid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,19 +81,18 @@ public class HomeActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(),"Null",Toast.LENGTH_SHORT).show();
             return;
         }
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-        email.setText(user.getEmail());
         user_name=(TextView)headerView.findViewById(R.id.user_name);
-
-        DatabaseReference realRef= FirebaseDatabase.getInstance().getReference("Users/"+user.getUid());
+        uid = FirebaseAuth.getInstance().getUid();
+        DatabaseReference realRef= FirebaseDatabase.getInstance().getReference("Users/"+uid);
         realRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User currUser=dataSnapshot.getValue(User.class);
-                currUser.getFullname();
-                user_name.setText(currUser.getFullname());
+                user=dataSnapshot.getValue(User.class);
+                user.getFullname();
+                user_name.setText(user.getFullname());
+                email.setText(user.getEmail());
                 Picasso.with ( getBaseContext () )
-                        .load ( currUser.getProfileImageUrl () )
+                        .load ( user.getProfileImageUrl () )
                         .into(profileImage);
             }
             @Override
@@ -109,8 +110,10 @@ public class HomeActivity extends AppCompatActivity {
           startActivity(intent);
     }
 
-    public void updateProfile(View view) {
+    public void updateProfile ( View view ) {
         Intent intent = new Intent(getBaseContext(), UpdateProfile.class);
+        intent.putExtra("user",user);
         startActivity(intent);
+
     }
 }

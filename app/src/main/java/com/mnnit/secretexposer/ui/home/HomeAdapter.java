@@ -21,10 +21,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.loginSignup.User;
 import com.mnnit.secretexposer.post.Like;
 import com.mnnit.secretexposer.post.Post;
-import com.mnnit.secretexposer.R;
 import com.mnnit.secretexposer.post.ShowComment;
 import com.squareup.picasso.Picasso;
 
@@ -57,11 +59,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
     @Override
     public void onBindViewHolder(@NonNull ContentHolder holder, int position) {
         Post post=data.get(position);
-        holder.groupName.setText(post.getGroupName()+"\n"+post.getOwner());
+        getPostOwnerProfileImage(post,holder.groupName,holder.groupImageView);
+//        holder.groupName.setText(post.getGroupName()+"\n"+post.getOwner());
         holder.groupName.setVisibility(View.VISIBLE);
         holder.groupImageView.setVisibility(View.VISIBLE);
-        holder.textPost.setText(post.getPostContent());
-        holder.textPost.setVisibility(View.VISIBLE);
+        if(post.getPostContent ()!=null) {
+            holder.textPost.setText ( post.getPostContent ( ) );
+            holder.textPost.setVisibility ( View.VISIBLE );
+        }
         holder.setIsRecyclable(false);
         holder.likeContainer.setVisibility(View.VISIBLE);
         String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -74,13 +79,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
                     holder.like.setVisibility(View.VISIBLE);
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-        if(post.getPostType()==2) {
+        if(post.getPostType()==2 && post.getUri() != null) {
             Picasso.with(context).load(post.getUri())
                     .into(holder.imagePost);
             holder.imagePost.setVisibility(View.VISIBLE);
@@ -96,7 +100,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             holder.videoPost.setVideoURI(uri);
             holder.videoPost.seekTo(1);
             holder.videoPost.setVisibility(View.VISIBLE);
-        }
+            holder.imagePost.setVisibility ( View.GONE );
+        } else
+            holder.imagePost.setVisibility ( View.GONE );
+
         holder.neutralLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,11 +133,37 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(context, ShowComment.class);
-                intent.putExtra("post", post.getId());
+                intent.putExtra("post", post);
+                intent.putExtra("uid",uid);
                 context.startActivity(intent, new Bundle());
             }
         });
     }
+
+    private void getPostOwnerProfileImage ( Post post, TextView textView, ImageView profileImage) {
+        if(post.isAnonymous()){
+            textView.setText(post.getGroupName()+"\n"+"Anonymous");
+            return;
+        }
+        Query query = FirebaseDatabase.getInstance ().getReference ( "Users")
+                .child ( post.getOwner () );
+        query.addListenerForSingleValueEvent ( new ValueEventListener ( ) {
+            @Override
+            public void onDataChange ( @NonNull DataSnapshot dataSnapshot ) {
+                User owner = dataSnapshot.getValue (User.class);
+                textView.setText ( post.getGroupName ()+"\n"+owner.getFullname () );
+                if(owner.getProfileImageUrl()!=null)
+                Picasso.with ( context )
+                        .load ( owner.getProfileImageUrl () )
+                        .into(profileImage);
+            }
+            @Override
+            public void onCancelled ( @NonNull DatabaseError databaseError ) {
+
+            }
+        } );
+    }
+
     @Override
     public int getItemCount() {
         return data.size();

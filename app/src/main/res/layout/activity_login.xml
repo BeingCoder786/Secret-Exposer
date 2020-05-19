@@ -6,8 +6,10 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".loginSignup.LoginActivity"
 android:background="#ffffff">
-
-
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
 <TextView
     android:id="@+id/appName"
     android:layout_width="324dp"
@@ -131,5 +133,5 @@ android:background="#ffffff">
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/uid" />
-
+</ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
