@@ -232,7 +232,7 @@ public class CreateGroup extends AppCompatActivity {
                                 .setValue("true").addOnSuccessListener(new OnSuccessListener < Void >( ){
                             @Override
                             public void onSuccess( Void aVoid ) {
-                                String text=currUser.getFullname()+" added to New Group "+groupName;
+                                String text=currUser.getFullname()+" added to Group "+groupName;
                                 String time= Calendar.getInstance().getTime().toString();
                                 String id=System.currentTimeMillis()+uid;
                                 Notification notification=new Notification(text,time,currUser.getProfileImageUrl());

@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,6 +20,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.mnnit.secretexposer.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.LinkedList;
+
 public class NotificationFragment extends Fragment {
 
     private NotificationViewModel slideshowViewModel;
@@ -33,30 +34,40 @@ public class NotificationFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_notification, container, false);
         uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
         linearLayout = root.findViewById(R.id.notification_layout);
-        showNotification();
+        new Thread(new Runnable(){
+            @Override
+            public void run(){
+                showNotification();
+            }
+        }).start();
         return root;
     }
     private void showNotification(){
         FirebaseDatabase.getInstance().getReference("Users")
                 .child(uid)
                 .child("Notification")
+                .limitToLast(10)
                 .addListenerForSingleValueEvent(new ValueEventListener(){
                     @Override
                     public void onDataChange( @NonNull DataSnapshot dataSnapshot ){
+                        LinkedList <View> list=new LinkedList<View>();
                         for(DataSnapshot notificationSnapshot:dataSnapshot.getChildren()) {
                             Notification notification=notificationSnapshot.getValue(Notification.class);
                             View view = getLayoutInflater()
                                     .inflate(R.layout.notification_container, null);
                             ImageView profileImage = view.findViewById(R.id.profile_image);
                             TextView text = view.findViewById(R.id.notification);
-                            if(notification.getProfileImageUrl()!=null)
+                            if(!notification.getProfileImageUrl().isEmpty())
                             Picasso.with(getContext())
                                     .load(notification.getProfileImageUrl())
                                     .into(profileImage);
                             text.setText(notification.getNotificationText());
-                            linearLayout.addView(view);
-                            Toast.makeText(getContext(),notification.getNotificationText(),Toast.LENGTH_SHORT).show();
+                            view.setPadding(0,10,10,5);
+                            list.addFirst(view);
                         }
+                        while(list.size()>0)
+                        linearLayout.addView(list.pollFirst());
+
                     }
                     @Override
                     public void onCancelled( @NonNull DatabaseError databaseError ){

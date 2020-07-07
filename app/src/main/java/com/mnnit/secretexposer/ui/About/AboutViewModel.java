@@ -1,16 +1,16 @@
-package com.mnnit.secretexposer.ui.send;
+package com.mnnit.secretexposer.ui.About;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SendViewModel extends ViewModel {
+public class AboutViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public SendViewModel() {
+    public AboutViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is send fragment");
+        mText.setValue("SecretExposer");
     }
 
     public LiveData<String> getText() {

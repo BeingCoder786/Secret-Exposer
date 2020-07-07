@@ -105,6 +105,7 @@ public class ShowGroupContent extends AppCompatActivity {
     }
 
     public void setGroup(){
+        if(!group.getGroupImageUri().isEmpty())
         Picasso.with(ShowGroupContent.this)
                 .load(group.getGroupImageUri())
                 .into(groupIcon);

@@ -54,7 +54,12 @@ public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private Uri fileUri;
     private ImageView profileImage;
-
+    private String fullname;
+    private String email;
+    private String password;
+    private String repassword;
+    private ProgressBar progressBar;
+    private String gender;
     @Override
     protected void onCreate ( Bundle savedInstanceState ) {
         super.onCreate ( savedInstanceState );
@@ -75,22 +80,20 @@ public class SignupActivity extends AppCompatActivity {
         btnsignup.setOnClickListener ( new View.OnClickListener ( ) {
             @Override
             public void onClick ( View v ) {
-                final String fullname = txtName.getText ( ).toString ( );
-                final String email = txtEmail.getText ( ).toString ( );
-                final String password = txtPwd.getText ( ).toString ( );
-                final String repassword = txtrePwd.getText ( ).toString ( );
-                String gender1 = "";
+                fullname = txtName.getText ( ).toString ( );
+                email = txtEmail.getText ( ).toString ( );
+                password = txtPwd.getText ( ).toString ( );
+                repassword = txtrePwd.getText ( ).toString ( );
 
                 //Toast.makeText(SignupActivity.this, gender,Toast.LENGTH_SHORT).show();
                 if ( btnGender1.isChecked ( ) )
-                    gender1 = btnGender1.getText ( ).toString ( );
+                    gender = btnGender1.getText ( ).toString ( );
                 else if ( btnGender2.isChecked ( ) )
-                    gender1 = btnGender2.getText ( ).toString ( );
+                    gender = btnGender2.getText ( ).toString ( );
                 else {
                     Toast.makeText ( SignupActivity.this, "please checked Radio Button", Toast.LENGTH_SHORT ).show ( );
                     return;
                 }
-                final String gender = gender1;
                 if ( TextUtils.isEmpty ( fullname ) ) {
                     Toast.makeText ( SignupActivity.this, "Fill Name Field", Toast.LENGTH_SHORT ).show ( );
 
@@ -115,7 +118,7 @@ public class SignupActivity extends AppCompatActivity {
                     Toast.makeText ( SignupActivity.this, "Gender", Toast.LENGTH_SHORT ).show ( );
                 }
 
-                final ProgressBar progressBar = findViewById ( R.id.progress_circular );
+                progressBar = findViewById ( R.id.progress_circular );
                 progressBar.setVisibility ( View.VISIBLE );
                 onPause ( );
                 mAuth.createUserWithEmailAndPassword ( email, password )
@@ -123,68 +126,12 @@ public class SignupActivity extends AppCompatActivity {
                             @Override
                             public void onComplete ( @NonNull Task < AuthResult > task ) {
                                 if ( task.isSuccessful ( ) ) {
-                                    User information;
-                                    if ( fileUri != null ) {
-                                        Date currTime = Calendar.getInstance ( ).getTime ( );
-                                        StorageReference storageReference = FirebaseStorage
-                                                .getInstance ( ).getReference ( "UserImages" )
-                                                .child ( FirebaseAuth.getInstance ( )
-                                                                 .getCurrentUser ( ).getUid ( ) );
-                                        storageReference.child ( currTime.toString ( ) )
-                                                .putFile ( fileUri )
-                                                .addOnSuccessListener ( new OnSuccessListener < UploadTask.TaskSnapshot > ( ) {
-                                                    @Override
-                                                    public void onSuccess ( UploadTask.TaskSnapshot taskSnapshot ) {
-                                                        storageReference
-                                                                .child ( currTime.toString ( ) )
-                                                                .getDownloadUrl ( )
-                                                                .addOnSuccessListener ( new OnSuccessListener < Uri > ( ) {
-                                                                    @Override
-                                                                    public void onSuccess ( Uri uri ) {
-                                                                        User user = new User ( fullname, email, password, gender, mAuth
-                                                                                .getCurrentUser ( )
-                                                                                .getUid ( ), uri.toString ( ) );
-                                                                        FirebaseDatabase
-                                                                                .getInstance ( )
-                                                                                .getReference ( "Users" )
-                                                                                .child ( FirebaseAuth
-                                                                                                 .getInstance ( )
-                                                                                                 .getCurrentUser ( )
-                                                                                                 .getUid ( ) )
-                                                                                .setValue ( user ).addOnSuccessListener ( new OnSuccessListener < Void > ( ) {
-                                                                            @Override
-                                                                            public void onSuccess ( Void aVoid ) {
-                                                                                progressBar.setVisibility ( View.GONE );
-                                                                                Toast.makeText ( SignupActivity.this, "Registration completed", Toast.LENGTH_SHORT )
-                                                                                        .show ( );
-                                                                                startActivity ( new Intent ( getApplicationContext ( ), LoginActivity.class ) );
-                                                                                onDestroy ( );
-                                                                            }
-                                                                        } );
-                                                                    }
-                                                                } );
-                                                    }
-                                                } );
-                                    } else {
-                                        User user = new User(fullname,email,password,gender,mAuth.getCurrentUser ().getUid (),"");
-                                        FirebaseDatabase.getInstance ( ).getReference ( "Users" )
-                                                .child ( FirebaseAuth.getInstance ( )
-                                                                 .getCurrentUser ( )
-                                                                 .getUid ( ) )
-                                                .setValue ( user )
-                                                .addOnCompleteListener ( new OnCompleteListener < Void > ( ) {
-                                                    @Override
-                                                    public void onComplete ( @NonNull Task < Void > task ) {
-                                                        progressBar.setVisibility ( View.GONE );
-                                                        Toast.makeText ( SignupActivity.this, "Registration completed", Toast.LENGTH_SHORT )
-                                                                .show ( );
-                                                        startActivity ( new Intent ( getApplicationContext ( ), LoginActivity.class ) );
-                                                        onDestroy ( );
-                                                    }
-                                                } );
-
-
-                                    }
+                                    new Thread(new Runnable(){
+                                        @Override
+                                        public void run(){
+                                            addUser();
+                                        }
+                                    }).start();
                                 } else{
                                         progressBar.setVisibility ( View.GONE );
                                         Toast.makeText ( SignupActivity.this, "Registration Failed", Toast.LENGTH_SHORT )
@@ -194,6 +141,69 @@ public class SignupActivity extends AppCompatActivity {
                 } );
             }
         } );
+    }
+    public void addUser(){
+        User information;
+        if ( fileUri != null ) {
+            Date currTime = Calendar.getInstance ( ).getTime ( );
+            StorageReference storageReference = FirebaseStorage
+                    .getInstance ( ).getReference ( "UserImages" )
+                    .child ( FirebaseAuth.getInstance ( )
+                                     .getCurrentUser ( ).getUid ( ) );
+            storageReference.child ( currTime.toString ( ) )
+                    .putFile ( fileUri )
+                    .addOnSuccessListener ( new OnSuccessListener < UploadTask.TaskSnapshot > ( ) {
+                        @Override
+                        public void onSuccess ( UploadTask.TaskSnapshot taskSnapshot ) {
+                            storageReference
+                                    .child ( currTime.toString ( ) )
+                                    .getDownloadUrl ( )
+                                    .addOnSuccessListener ( new OnSuccessListener < Uri > ( ) {
+                                        @Override
+                                        public void onSuccess ( Uri uri ) {
+                                            User user = new User ( fullname, email, password, gender, mAuth
+                                                    .getCurrentUser ( )
+                                                    .getUid ( ), uri.toString ( ) );
+                                            FirebaseDatabase
+                                                    .getInstance ( )
+                                                    .getReference ( "Users" )
+                                                    .child ( FirebaseAuth
+                                                                     .getInstance ( )
+                                                                     .getCurrentUser ( )
+                                                                     .getUid ( ) )
+                                                    .setValue ( user ).addOnSuccessListener ( new OnSuccessListener < Void > ( ) {
+                                                @Override
+                                                public void onSuccess ( Void aVoid ) {
+                                                    progressBar.setVisibility ( View.GONE );
+                                                    Toast.makeText ( SignupActivity.this, "Registration completed", Toast.LENGTH_SHORT )
+                                                            .show ( );
+                                                    startActivity ( new Intent ( getApplicationContext ( ), LoginActivity.class ) );
+                                                }
+                                            } );
+                                        }
+                                    } );
+                        }
+                    } );
+        } else {
+            User user = new User(fullname,email,password,gender,mAuth.getCurrentUser ().getUid (),"");
+            FirebaseDatabase.getInstance ( ).getReference ( "Users" )
+                    .child ( FirebaseAuth.getInstance ( )
+                                     .getCurrentUser ( )
+                                     .getUid ( ) )
+                    .setValue ( user )
+                    .addOnCompleteListener ( new OnCompleteListener < Void > ( ) {
+                        @Override
+                        public void onComplete ( @NonNull Task < Void > task ) {
+                            progressBar.setVisibility ( View.GONE );
+                            Toast.makeText ( SignupActivity.this, "Registration completed", Toast.LENGTH_SHORT )
+                                    .show ( );
+                            startActivity ( new Intent ( getApplicationContext ( ), LoginActivity.class ) );
+                            onDestroy ( );
+                        }
+                    } );
+
+
+        }
     }
     public void chooseImage ( View view ) {
         final CharSequence[] options={"Take Photo","Select From Gallery","Cancel"};

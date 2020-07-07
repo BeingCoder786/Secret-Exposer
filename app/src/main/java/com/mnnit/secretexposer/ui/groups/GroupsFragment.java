@@ -27,9 +27,7 @@ import com.mnnit.secretexposer.group.CreateGroup;
 import com.mnnit.secretexposer.group.Group;
 
 import java.util.ArrayList;
-
 public class GroupsFragment extends Fragment {
-
     private GroupsViewModel toolsViewModel;
     private boolean isMaxGroup;
     private String currLastGroup="";
@@ -43,7 +41,7 @@ public class GroupsFragment extends Fragment {
     private String currUid;
     private int totalGroup;
     private int lastVisibleGroup;
-    String lGroup;
+    private String lGroup;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -76,7 +74,6 @@ public class GroupsFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent=new Intent(getContext(),CreateGroup.class);
                 startActivity(intent);
-
             }
         });
         getLastGroupName();

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -31,17 +32,18 @@ import com.mnnit.secretexposer.post.ShowComment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder> {
     @NonNull
     private  ArrayList<Post> data;
     Context context;
+    private MediaController mediaController;
+
     public HomeAdapter(Context context , ArrayList<Post> data) {
         this.data = data;
         this.context = context;
     }
-    public void addAll(ArrayList<Post> newPost){
+    public void addAll( ArrayList <Post> newPost){
         int count=data.size();
         data.addAll(newPost);
         notifyItemRangeInserted(count,newPost.size());
@@ -70,8 +72,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
         holder.setIsRecyclable(false);
         holder.likeContainer.setVisibility(View.VISIBLE);
         String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("PostLikes/"+post.getId()+"/"+uid);
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("PostLikes/"+post.getId());
+        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue()!=null){
@@ -84,6 +86,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
 
             }
         });
+        databaseReference.addValueEventListener(new ValueEventListener(){
+            @Override
+            public void onDataChange( @NonNull DataSnapshot dataSnapshot ){
+                if(dataSnapshot!=null){
+                    holder.likeCount.setText("Like "+dataSnapshot.getChildrenCount());
+                }
+            }
+
+            @Override
+            public void onCancelled( @NonNull DatabaseError databaseError ){
+
+            }
+        });
         if(post.getPostType()==2 && post.getUri() != null) {
             Picasso.with(context).load(post.getUri())
                     .into(holder.imagePost);
@@ -91,16 +106,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             holder.imagePost.setMaxHeight(300);
         }
         else if(post.getPostType()==4){
-            MediaController mediaController=new MediaController(context);
+            mediaController=new MediaController(context);
+            holder.videoPostContainer.setVisibility(View.VISIBLE);
             holder.textPost.setVisibility(View.VISIBLE);
-            mediaController.setMediaPlayer(holder.videoPost);
-            mediaController.setAnchorView(holder.videoPost);
             holder.videoPost.setMediaController(mediaController);
             Uri uri=Uri.parse(post.getUri());
             holder.videoPost.setVideoURI(uri);
             holder.videoPost.seekTo(1);
             holder.videoPost.setVisibility(View.VISIBLE);
             holder.imagePost.setVisibility ( View.GONE );
+            mediaController.setMediaPlayer(holder.videoPost);
+            mediaController.setAnchorView(holder.videoPost);
         } else
             holder.imagePost.setVisibility ( View.GONE );
 
@@ -112,9 +128,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
                 String timeStamp=System.currentTimeMillis()+"";
                 Like like=new Like(uid,postId,timeStamp);
                 DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("PostLikes/");
-                HashMap<String,Like> hashMap=new HashMap<String,Like>();
-                hashMap.put(uid,new Like(uid,postId,System.currentTimeMillis()+""));
-                databaseReference.child(postId).setValue(hashMap);
+                databaseReference.child(postId+"/"+uid).setValue(new Like(uid,postId,System.currentTimeMillis()+""));
                 holder.neutralLike.setVisibility(View.GONE);
                 holder.like.setVisibility(View.VISIBLE);
             }
@@ -124,7 +138,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             public void onClick(View v) {
                 String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
                 DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("PostLikes/");
-                databaseReference.child(post.getId()).removeValue();
+                databaseReference.child(post.getId()+"/"+uid).removeValue();
                 holder.neutralLike.setVisibility(View.VISIBLE);
                 holder.like.setVisibility(View.GONE);
             }
@@ -136,6 +150,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
                 intent.putExtra("post", post);
                 intent.putExtra("uid",uid);
                 context.startActivity(intent, new Bundle());
+            }
+        });
+        databaseReference=FirebaseDatabase.getInstance().getReference("Posts/"+post.getGroupName()+"/"+post.getId()+"/Comments");
+        databaseReference.addValueEventListener(new ValueEventListener(){
+            @Override
+            public void onDataChange( @NonNull DataSnapshot dataSnapshot ){
+                holder.commentCount.setText("Comments "+dataSnapshot.getChildrenCount());
+            }
+
+            @Override
+            public void onCancelled( @NonNull DatabaseError databaseError ){
+
             }
         });
     }
@@ -152,7 +178,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             public void onDataChange ( @NonNull DataSnapshot dataSnapshot ) {
                 User owner = dataSnapshot.getValue (User.class);
                 textView.setText ( post.getGroupName ()+"\n"+owner.getFullname () );
-                if(owner.getProfileImageUrl()!=null)
+                if(!owner.getProfileImageUrl().isEmpty())
                 Picasso.with ( context )
                         .load ( owner.getProfileImageUrl () )
                         .into(profileImage);
@@ -175,13 +201,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
         ImageView neutralLike;
         ImageView like;
         ImageView comment;
-        ImageView share;
         VideoView videoPost;
         TextView textPost;
         TextView groupName;
-        MediaController mediaController;
         LinearLayout likeContainer;
-
+        FrameLayout videoPostContainer;
+        TextView likeCount;
+        TextView commentCount;
         public ContentHolder(@NonNull View itemView) {
             super(itemView);
             mediaController=(MediaController)itemView.findViewById(R.id.media_actions);
@@ -194,7 +220,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ContentHolder>
             neutralLike=(ImageView)itemView.findViewById(R.id.neutral_like);
             like=(ImageView)itemView.findViewById(R.id.like);
             comment=(ImageView)itemView.findViewById(R.id.comment);
-            share=(ImageView)itemView.findViewById(R.id.share);
+            videoPostContainer=(FrameLayout)itemView.findViewById(R.id.video_post_laypout);
+            likeCount=(TextView)itemView.findViewById(R.id.like_count);
+            commentCount=(TextView)itemView.findViewById(R.id.comment_count);
         }
     }
 }

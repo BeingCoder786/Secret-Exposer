@@ -65,6 +65,7 @@ public class WritePostActivity extends AppCompatActivity{
     private String owner;
     private String groupName;
     private Post post;
+    private long counter;
     private final int CAMERA_REQUEST = 1;
     private final int CAMERA_PERMISSION_CODE = 100;
     private final int PICK_IMAGE_REQUEST_CODE = 2;
@@ -88,6 +89,16 @@ public class WritePostActivity extends AppCompatActivity{
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void sendPost(View view) {
         progressBar.setVisibility(View.VISIBLE);
+        FirebaseDatabase.getInstance().getReference("Posts/publicGroup").addValueEventListener(new ValueEventListener(){
+            @Override
+            public void onDataChange( @NonNull DataSnapshot dataSnapshot ){
+                counter=-1*dataSnapshot.getChildrenCount();
+            }
+            @Override
+            public void onCancelled( @NonNull DatabaseError databaseError ){
+
+            }
+        });
         Instant time = Instant.now();
         id = time.getEpochSecond() + "" + FirebaseAuth.getInstance().getCurrentUser().getUid();
         if(fileUri != null){
@@ -114,6 +125,7 @@ public class WritePostActivity extends AppCompatActivity{
                                                     .getUid();
                                             post = new Post(id, postContent, owner, groupName, uri
                                                     .toString(), postType, anonymous);
+                                            post.setCounter(counter);
                                             FirebaseDatabase.getInstance()
                                                     .getReference("Posts/" + groupName)
                                                     .child(id).setValue(post)
@@ -139,6 +151,7 @@ public class WritePostActivity extends AppCompatActivity{
             else
                 anonymous = false;
             post = new Post(id, postContent, owner, groupName, "", postType, anonymous);
+            post.setCounter(counter);
             FirebaseDatabase.getInstance().getReference("Posts/publicGroup").child(id)
                     .setValue(post).addOnSuccessListener(new OnSuccessListener< Void >(){
                 @Override

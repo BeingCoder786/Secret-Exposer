@@ -50,8 +50,6 @@ public class UpdateProfile extends AppCompatActivity{
     private String path;
     private String uid;
     private User user;
-
-
     @Override
     protected void onCreate( Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
@@ -63,6 +61,7 @@ public class UpdateProfile extends AppCompatActivity{
         user = (User) getIntent().getExtras().get("user");
         email.setText(user.getEmail());
         userName.setText(user.getFullname());
+        if(!user.getProfileImageUrl().isEmpty())
         Picasso.with(UpdateProfile.this)
                 .load(user.getProfileImageUrl())
                 .into(profileImage);

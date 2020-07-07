@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".group.CreateGroup">
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/user_detail"
+        android:divider="?android:dividerHorizontal">
+        <androidx.cardview.widget.CardView
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            app:cardCornerRadius="50dp"
+            android:layout_marginStart="5dp"
+            android:background="@color/user_detail"
+            android:layout_gravity="fill"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true">
+            <ImageView
+                android:id="@+id/group_image"
+                android:layout_width="108dp"
+                android:layout_height="90dp"
+                android:layout_marginLeft="-9dp"
+                android:layout_marginTop="2dp"
+                android:onClick="selectImage"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_account_profile_100dp"/>
+        </androidx.cardview.widget.CardView>
+        <EditText
+            android:id="@+id/group_name"
+            android:layout_marginTop="30dp"
+            android:layout_width="250dp"
+            android:editable="false"
+            android:layout_height="40dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="20dp"
+            app:layout_constraintStart_toEndOf="@+id/group_image"/>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/search_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint=" Search User to add in Group ..."
+        android:onClick="searchUser"
+        android:background="@drawable/rounded_text_box"
+        app:layout_constraintTop_toBottomOf="@id/container" />
+    <EditText
+        android:id="@+id/search_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint=" Search User to add in Group ..."
+        android:visibility="gone"
+        android:background="@drawable/rounded_text_box"
+        app:layout_constraintTop_toBottomOf="@id/search_text_view" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_container"
+        android:layout_width="match_parent"
+        android:layout_height="431dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_edit_text"
+        app:layout_constraintVertical_bias="0.333"
+        tools:layout_editor_absoluteX="3dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/group_recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

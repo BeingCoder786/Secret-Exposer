@@ -73,8 +73,12 @@ public class HomeFragment extends Fragment{
                 lastVisiblePost = 0;
                 lastPost = "";
                 lastPostId = "";
+                isMaxPost=false;
                 postAdapter.clearAll();
                 getLastKeyFromFirebase("publicGroup");
+                if(lastPostId==null){
+                    startActivity(new Intent(getContext(),WritePostActivity.class));
+                }
                 if(swipeRefreshLayout.isRefreshing() == true)
                     swipeRefreshLayout.setRefreshing(false);
             }
@@ -91,7 +95,13 @@ public class HomeFragment extends Fragment{
                 super.onScrolled(recyclerView, dx, dy);
                 totalPost = layoutManager.getItemCount();
                 lastVisiblePost = layoutManager.findLastCompletelyVisibleItemPosition();
-                getPost("publicGroup");
+                new Thread(new Runnable(){
+                    @Override
+                    public void run(){
+                        getPost("publicGroup");
+                    }
+                }).start();
+
             }
         });
         recyclerView.setHasFixedSize(false);
@@ -114,11 +124,10 @@ public class HomeFragment extends Fragment{
         recyclerView.setAdapter(postAdapter);
         return root;
     }
-
     private void getLastKeyFromFirebase( String groupName ){
         Query getLastKey = FirebaseDatabase.getInstance().getReference("Posts/")
                 .child(groupName)
-                .orderByKey()
+                .orderByChild("counter")
                 .limitToLast(1);
         getLastKey.addListenerForSingleValueEvent(new ValueEventListener(){
             @Override
@@ -127,42 +136,40 @@ public class HomeFragment extends Fragment{
                     lastPostId = lastKey.getKey();
                 }
             }
-
             @Override
             public void onCancelled( @NonNull DatabaseError databaseError ){
 
             }
         });
     }
-
     private void getPost( String groupName ){
         if(! isMaxPost){
             Query query;
             if(TextUtils.isEmpty(lastPost)){
                 query = FirebaseDatabase.getInstance().getReference("Posts")
                         .child(groupName)
-                        .orderByKey()
-                        .limitToFirst(MAX_POST_COUNT);
+                        .orderByChild("counter")
+                        .limitToLast(MAX_POST_COUNT);
             } else {
                 query = FirebaseDatabase.getInstance().getReference("Posts")
                         .child(groupName)
-                        .orderByKey()
+                        .orderByChild("counter")
                         .startAt(lastPost)
-                        .limitToFirst(MAX_POST_COUNT);
+                        .limitToLast(MAX_POST_COUNT);
             }
             query.addListenerForSingleValueEvent(new ValueEventListener(){
                 @Override
                 public void onDataChange( @NonNull DataSnapshot dataSnapshot ){
                     if(dataSnapshot.hasChildren()){
-                        ArrayList <Post> posts = new ArrayList <>();
+                        ArrayList <Post> posts = new ArrayList <Post>();
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             Post post = postSnapshot.getValue(Post.class);
                             posts.add(post);
                         }
                         if(posts.size() > 0)
-                            lastPost = posts.get(posts.size() - 1).getId();
+                            lastPost = posts.get(posts.size()-1).getId();
                         if(! lastPost.equals(lastPostId))
-                            posts.remove(posts.size() - 1);
+                            posts.remove(posts.size()-1);
                         else
                             lastPost = "end";
                         postAdapter.addAll(posts);
@@ -172,7 +179,6 @@ public class HomeFragment extends Fragment{
                         isLoading = false;
                     }
                 }
-
                 @Override
                 public void onCancelled( @NonNull DatabaseError databaseError ){
                     isLoading = false;

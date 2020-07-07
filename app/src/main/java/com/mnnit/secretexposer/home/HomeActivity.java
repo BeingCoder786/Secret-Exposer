@@ -1,6 +1,7 @@
 package com.mnnit.secretexposer.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_profile, R.id.nav_notification,
-                R.id.nav_groups, R.id.nav_share, R.id.nav_send)
+                R.id.nav_groups, R.id.nav_share, R.id.nav_about)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -91,6 +92,7 @@ public class HomeActivity extends AppCompatActivity {
                 user.getFullname();
                 user_name.setText(user.getFullname());
                 email.setText(user.getEmail());
+                if(!user.getProfileImageUrl().isEmpty())
                 Picasso.with ( getBaseContext () )
                         .load ( user.getProfileImageUrl () )
                         .into(profileImage);
@@ -105,6 +107,9 @@ public class HomeActivity extends AppCompatActivity {
     public void logout(MenuItem item) {
           FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
           firebaseAuth.signOut();
+          SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
+          sp.edit().clear().apply();
+          sp.edit().commit();
           finish();
           Intent intent=new Intent(getBaseContext(), LoginActivity.class);
           startActivity(intent);

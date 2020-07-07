@@ -10,6 +10,7 @@ public class Post implements Serializable{
     private String uri;
     private int postType;
     private boolean anonymous;
+    private long counter;
     public Post(){}
     public Post(String id, String postContent, String owener, String groupName, String uri,int postType,boolean anonymous) {
         this.id=id;
@@ -19,7 +20,7 @@ public class Post implements Serializable{
         this.uri = uri;
         this.postType= postType;
         this.anonymous=anonymous;
-
+        this.counter=counter;
     }
 
     public String getId(){
@@ -41,10 +42,13 @@ public class Post implements Serializable{
 
         return groupName;
     }
-
-
+    public long getCounter(){
+        return counter;
+    }
+    public void setCounter(long counter){
+        this.counter=counter;
+    }
     public String getUri() {
-
         return uri;
     }
     public int getPostType(){

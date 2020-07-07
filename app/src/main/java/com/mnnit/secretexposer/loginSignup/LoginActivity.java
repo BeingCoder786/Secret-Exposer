@@ -2,6 +2,7 @@ package com.mnnit.secretexposer.loginSignup;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -22,58 +23,32 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mnnit.secretexposer.home.HomeActivity;
 import com.mnnit.secretexposer.R;
+import com.mnnit.secretexposer.home.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText txtEmail,txtPwd;
-    Button btnlogin;
-    TextView forgot;
-    FirebaseAuth mAuth;
-    ProgressBar progressBar;
+    private EditText txtEmail,txtPwd;
+    private Button btnlogin;
+    private TextView forgot;
+    private FirebaseAuth mAuth;
+    private ProgressBar progressBar;
     private String uid;
+    private SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        sp=getSharedPreferences("login",MODE_PRIVATE);
         forgot=(TextView)findViewById(R.id.forgot);
         txtEmail=(EditText)findViewById(R.id.uid);
         txtPwd=(EditText)findViewById(R.id.password);
         btnlogin=(Button) findViewById(R.id.signin);
-        mAuth= FirebaseAuth.getInstance();
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String email=txtEmail.getText().toString();
                 final String password=txtPwd.getText().toString();
-                if(TextUtils.isEmpty(email))
-                {
-                    Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
-                }
-                if(TextUtils.isEmpty(password))
-                {
-                    Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
-                }
-                //now login begin
-                progressBar=findViewById(R.id.progress_circular);
-                progressBar.setVisibility(View.VISIBLE);
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {   //you have to privide class name
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                progressBar.setVisibility(View.GONE);
-                                uid= mAuth.getCurrentUser().getUid();
-                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                intent.putExtra("uid",uid);
-                                Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
-                                startActivity(intent);
-                        } else {
-                            progressBar.setVisibility(View.GONE);
-                            Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                login(email,password);
             }
         });
         ///recover password through email
@@ -84,6 +59,41 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+    private void login(String email,String password){
+        mAuth= FirebaseAuth.getInstance();
+        if(TextUtils.isEmpty(email))
+        {
+            Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
+        }
+        if(TextUtils.isEmpty(password))
+        {
+            Toast.makeText(LoginActivity.this, "error", Toast.LENGTH_SHORT).show();
+        }
+        //now login begin
+        progressBar=findViewById(R.id.progress_circular);
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {   //you have to privide class name
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            sp.edit().putBoolean("logged",true).apply();
+                            sp.edit().putString("email",email).apply();
+                            sp.edit().putString("password",password).apply();
+                            progressBar.setVisibility(View.GONE);
+                            uid= mAuth.getCurrentUser().getUid();
+                            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                            intent.putExtra("uid",uid);
+                            Toast.makeText(LoginActivity.this, "login Succesfully", Toast.LENGTH_SHORT).show();
+                            startActivity(intent);
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
     }
     private void showRecoverPasswordialog() {
         //alert

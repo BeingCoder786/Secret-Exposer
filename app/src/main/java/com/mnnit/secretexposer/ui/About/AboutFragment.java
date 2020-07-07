@@ -1,4 +1,4 @@
-package com.mnnit.secretexposer.ui.send;
+package com.mnnit.secretexposer.ui.About;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,15 +14,15 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.mnnit.secretexposer.R;
 
-public class SendFragment extends Fragment {
+public class AboutFragment extends Fragment {
 
-    private SendViewModel sendViewModel;
+    private AboutViewModel sendViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         sendViewModel =
-                ViewModelProviders.of(this).get(SendViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_send, container, false);
+                ViewModelProviders.of(this).get(AboutViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_about, container, false);
         final TextView textView = root.findViewById(R.id.text_send);
         sendViewModel.getText().observe(this, new Observer<String>() {
             @Override

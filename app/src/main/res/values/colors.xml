@@ -7,4 +7,6 @@
     <color name="user_name_color">#2C2A2A</color>
     <color name="background">#DBD7D7</color>
     <color name="user_detail">#FAFAFC</color>
+    <color name="black_overlay">#66000000</color>
+
 </resources>

@@ -49,6 +49,7 @@
                 android:maxHeight="100dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="5dp"
+                android:layout_gravity="center"
                 app:layout_constraintTop_toBottomOf="@+id/file_post"
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:visibility="gone" />
